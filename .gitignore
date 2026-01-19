@@ -73,3 +73,16 @@ Penjadwalan*.pdf
 
 # Backup files main_window
 main_window.py.backup*
+
+# Documentation files (keep separate from code)
+*.docx
+Laporan*.md
+
+# Code screenshots
+ARPCode.png
+QThreadPool.png
+SQLiteCode.png
+TTLCode.png
+
+# Database files
+*.db
