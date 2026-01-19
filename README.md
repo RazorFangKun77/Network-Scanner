@@ -66,7 +66,7 @@ Aplikasi desktop untuk memindai perangkat pada jaringan lokal dan memantau keter
 
 ### Minimum Requirements
 - **OS:** Windows 10/11 (64-bit)
-- **RAM:** 4 GB
+- **RAM:** 2 GB
 - **Storage:** 100 MB ruang kosong
 - **Python:** 3.8 atau lebih baru (jika menjalankan dari source code)
 
@@ -249,7 +249,7 @@ Project_UAS/
 
 | Teknologi | Kegunaan |
 |-----------|----------|
-| **Python 3.x** | Bahasa pemrograman utama |
+| **Python 3** | Bahasa pemrograman utama |
 | **PySide6 (Qt)** | Framework GUI |
 | **SQLite3** | Database lokal |
 | **QThreadPool** | Multithreading untuk scan paralel |
@@ -284,7 +284,7 @@ Project_UAS/
 
 | Nama | NIM | Kelas |
 |------|-----|-------|
-| [Nama Anda] | [NIM Anda] | [Kelas Anda] |
+| RAFFA MUHAMMAD SHADDAM | 3202416065 | TI-3A |
 
 **Dosen Pengampu:** Safri Adam, S.Kom., M.Kom.  
 **Mata Kuliah:** Praktikum Pemrograman Visual  
@@ -298,6 +298,4 @@ Proyek ini dibuat untuk keperluan tugas akhir mata kuliah Praktikum Pemrograman 
 
 ---
 
-<p align="center">
-  Made with ❤️ using Python & PySide6
 </p>
