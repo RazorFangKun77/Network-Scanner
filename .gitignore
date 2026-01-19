@@ -1,0 +1,75 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+develop-eggs/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec.bak
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database (optional - uncomment if you don't want to share)
+# *.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.backup
+*.backup2
+*.bak
+
+# Temporary files
+*.tmp
+*.temp
+
+# Log files
+*.log
+
+# Extracted files
+*.extracted.txt
+
+# ZIP archives
+*.zip
+
+# PDF files (assignment documents)
+PPV*.pdf
+Penjadwalan*.pdf
+
+# Backup files main_window
+main_window.py.backup*
