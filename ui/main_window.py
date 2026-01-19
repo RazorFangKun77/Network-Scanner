@@ -1,10 +1,10 @@
 ﻿from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                                QLabel, QLineEdit, QPushButton, QTableWidget,
                                QTableWidgetItem, QProgressBar, QTabWidget, QSpinBox, 
-                               QComboBox, QDateEdit, QFileDialog, QMessageBox, QMenu)
+                               QComboBox, QDateEdit, QFileDialog, QMessageBox, QMenu,
+                               QApplication)
 from PySide6.QtCore import QThreadPool, QTimer, QDate, Qt
-from PySide6.QtGui import QPalette, QColor, QKeySequence, QShortcut
-from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QKeySequence, QShortcut, QColor
 from controllers.scanner import ScanWorker
 from models.database import Database
 from datetime import datetime
@@ -36,6 +36,7 @@ class MainWindow(QMainWindow):
         
         self.init_ui()
         self.setup_shortcuts()
+        self.apply_light_theme()  #Terapkan tema terang saat startup
         self.load_logs()
     
     def init_ui(self):
@@ -57,9 +58,9 @@ class MainWindow(QMainWindow):
         
         header_layout.addStretch()
         
-        self.dark_mode_button = QPushButton("🌙 Dark Mode")
+        self.dark_mode_button = QPushButton("Dark Mode")
         self.dark_mode_button.clicked.connect(self.toggle_dark_mode)
-        self.dark_mode_button.setFixedWidth(130)
+        self.dark_mode_button.setFixedWidth(100)
         self.dark_mode_button.setFixedHeight(30)
         header_layout.addWidget(self.dark_mode_button)
         
@@ -228,20 +229,20 @@ class MainWindow(QMainWindow):
         export_layout.setSpacing(8)
         export_layout.addStretch()
         
-        self.clear_history_button = QPushButton("🗑️ Clear History")
+        self.clear_history_button = QPushButton("Clear History")
         self.clear_history_button.clicked.connect(self.clear_log_history)
-        self.clear_history_button.setFixedWidth(140)
+        self.clear_history_button.setFixedWidth(120)
         self.clear_history_button.setStyleSheet("QPushButton { background-color: #ff4444; color: white; font-weight: bold; }")
         export_layout.addWidget(self.clear_history_button)
         
-        self.export_csv_button = QPushButton("📄 Export to CSV")
+        self.export_csv_button = QPushButton("Export to CSV")
         self.export_csv_button.clicked.connect(self.export_to_csv)
-        self.export_csv_button.setFixedWidth(140)
+        self.export_csv_button.setFixedWidth(120)
         export_layout.addWidget(self.export_csv_button)
         
-        self.export_excel_button = QPushButton("📊 Export to Excel")
+        self.export_excel_button = QPushButton("Export to Excel")
         self.export_excel_button.clicked.connect(self.export_to_excel)
-        self.export_excel_button.setFixedWidth(140)
+        self.export_excel_button.setFixedWidth(120)
         export_layout.addWidget(self.export_excel_button)
         
         log_layout.addLayout(export_layout)
@@ -280,81 +281,282 @@ class MainWindow(QMainWindow):
         self.dark_mode = not self.dark_mode
         
         if self.dark_mode:
-            #Config Dark Mode
-            dark_palette = QPalette()
-            dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
-            dark_palette.setColor(QPalette.WindowText, QColor(255, 255, 255))
-            dark_palette.setColor(QPalette.Base, QColor(35, 35, 35))
-            dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-            dark_palette.setColor(QPalette.ToolTipBase, QColor(25, 25, 25))
-            dark_palette.setColor(QPalette.ToolTipText, QColor(255, 255, 255))
-            dark_palette.setColor(QPalette.Text, QColor(255, 255, 255))
-            dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
-            dark_palette.setColor(QPalette.ButtonText, QColor(255, 255, 255))
-            dark_palette.setColor(QPalette.BrightText, QColor(255, 0, 0))
-            dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
-            dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-            dark_palette.setColor(QPalette.HighlightedText, QColor(255, 255, 255))
-            
-            self.setPalette(dark_palette)
-            self.dark_mode_button.setText("☀️ Light Mode")
-            
-            #stylesheet biar cocok di dark mode
-            self.setStyleSheet("""
-                QTableWidget {
-                    gridline-color: #666666;
-                    background-color: #353535;
-                    color: #ffffff;
-                }
-                QHeaderView::section {
-                    background-color: #454545;
-                    color: #ffffff;
-                    padding: 4px;
-                    border: 1px solid #666666;
-                }
-                QLineEdit, QSpinBox, QDateEdit, QComboBox {
-                    background-color: #454545;
-                    color: #ffffff;
-                    border: 1px solid #666666;
-                }
-            """)
+            self.apply_dark_theme()
         else:
-            #Mode Terang (Default)
-            self.setPalette(self.style().standardPalette())
-            self.dark_mode_button.setText("🌙 Dark Mode")
-            
-            #Reset stylesheet dan atur warna mode terang
-            self.setStyleSheet("""
-                QTableWidget {
-                    gridline-color: #d0d0d0;
-                    background-color: #ffffff;
-                    color: #000000;
-                }
-                QHeaderView::section {
-                    background-color: #f0f0f0;
-                    color: #000000;
-                    padding: 4px;
-                    border: 1px solid #d0d0d0;
-                    font-weight: bold;
-                }
-                QLabel {
-                    color: #000000;
-                }
-                QLineEdit, QSpinBox, QDateEdit, QComboBox {
-                    background-color: #ffffff;
-                    color: #000000;
-                    border: 1px solid #cccccc;
-                }
-                QPushButton {
-                    background-color: #f0f0f0;
-                    color: #000000;
-                    border: 1px solid #cccccc;
-                    padding: 5px;
-                }
-                QPushButton:hover {
-                    background-color: #e0e0e0;
-                }
-            """)
+            self.apply_light_theme()
+    
+    def apply_dark_theme(self):
+        """Apply dark theme to the application"""
+        self.dark_mode_button.setText("Light Mode")
+        
+        #Stylesheet lengkap untuk Dark Mode
+        self.setStyleSheet("""
+            QMainWindow, QWidget {
+                background-color: #2b2b2b;
+                color: #ffffff;
+            }
+            QTabWidget::pane {
+                border: 1px solid #555555;
+                background-color: #2b2b2b;
+            }
+            QTabBar::tab {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                padding: 8px 16px;
+                border: 1px solid #555555;
+                border-bottom: none;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+            QTabBar::tab:selected {
+                background-color: #2b2b2b;
+                border-bottom: 1px solid #2b2b2b;
+            }
+            QTabBar::tab:hover:!selected {
+                background-color: #454545;
+            }
+            QTableWidget {
+                gridline-color: #555555;
+                background-color: #353535;
+                color: #ffffff;
+                border: 1px solid #555555;
+                selection-background-color: #2a82da;
+            }
+            QTableWidget::item {
+                padding: 4px;
+            }
+            QHeaderView::section {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                padding: 6px;
+                border: 1px solid #555555;
+                font-weight: bold;
+            }
+            QLabel {
+                color: #ffffff;
+                background-color: transparent;
+            }
+            QLineEdit, QSpinBox, QDateEdit, QComboBox {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 3px;
+                padding: 4px;
+            }
+            QLineEdit:focus, QSpinBox:focus, QDateEdit:focus, QComboBox:focus {
+                border: 1px solid #2a82da;
+            }
+            QComboBox::drop-down {
+                border: none;
+                background-color: #454545;
+            }
+            QComboBox QAbstractItemView {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                selection-background-color: #2a82da;
+            }
+            QPushButton {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 4px;
+                padding: 6px 12px;
+            }
+            QPushButton:hover {
+                background-color: #505050;
+                border: 1px solid #666666;
+            }
+            QPushButton:pressed {
+                background-color: #2a82da;
+            }
+            QProgressBar {
+                border: 1px solid #555555;
+                border-radius: 3px;
+                background-color: #3c3c3c;
+                text-align: center;
+                color: #ffffff;
+            }
+            QProgressBar::chunk {
+                background-color: #2a82da;
+                border-radius: 2px;
+            }
+            QMenu {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+            }
+            QMenu::item:selected {
+                background-color: #2a82da;
+            }
+            QScrollBar:vertical {
+                background-color: #2b2b2b;
+                width: 12px;
+                border: none;
+            }
+            QScrollBar::handle:vertical {
+                background-color: #555555;
+                border-radius: 4px;
+                min-height: 20px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background-color: #666666;
+            }
+            QScrollBar:horizontal {
+                background-color: #2b2b2b;
+                height: 12px;
+                border: none;
+            }
+            QScrollBar::handle:horizontal {
+                background-color: #555555;
+                border-radius: 4px;
+                min-width: 20px;
+            }
+        """)
+        
+        #Update tombol Clear History agar tetap merah
+        self.clear_history_button.setStyleSheet(
+            "QPushButton { background-color: #cc3333; color: white; font-weight: bold; border-radius: 4px; }"
+            "QPushButton:hover { background-color: #ff4444; }"
+        )
+    
+    def apply_light_theme(self):
+        """Apply light theme to the application"""
+        self.dark_mode_button.setText("Dark Mode")
+        
+        #Reset ke style default sistem lalu override yang perlu
+        self.setStyleSheet("""
+            QMainWindow, QWidget {
+                background-color: #f5f5f5;
+                color: #000000;
+            }
+            QTabWidget::pane {
+                border: 1px solid #cccccc;
+                background-color: #ffffff;
+            }
+            QTabBar::tab {
+                background-color: #e0e0e0;
+                color: #000000;
+                padding: 8px 16px;
+                border: 1px solid #cccccc;
+                border-bottom: none;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+            QTabBar::tab:selected {
+                background-color: #ffffff;
+                border-bottom: 1px solid #ffffff;
+            }
+            QTabBar::tab:hover:!selected {
+                background-color: #d0d0d0;
+            }
+            QTableWidget {
+                gridline-color: #d0d0d0;
+                background-color: #ffffff;
+                color: #000000;
+                border: 1px solid #cccccc;
+                selection-background-color: #0078d4;
+                selection-color: #ffffff;
+            }
+            QTableWidget::item {
+                padding: 4px;
+                background-color: #ffffff;
+            }
+            QHeaderView::section {
+                background-color: #e8e8e8;
+                color: #000000;
+                padding: 6px;
+                border: 1px solid #cccccc;
+                font-weight: bold;
+            }
+            QLabel {
+                color: #000000;
+                background-color: transparent;
+            }
+            QLineEdit, QSpinBox, QDateEdit, QComboBox {
+                background-color: #ffffff;
+                color: #000000;
+                border: 1px solid #cccccc;
+                border-radius: 3px;
+                padding: 4px;
+            }
+            QLineEdit:focus, QSpinBox:focus, QDateEdit:focus, QComboBox:focus {
+                border: 1px solid #0078d4;
+            }
+            QComboBox::drop-down {
+                border: none;
+                background-color: #e0e0e0;
+            }
+            QComboBox QAbstractItemView {
+                background-color: #ffffff;
+                color: #000000;
+                selection-background-color: #0078d4;
+                selection-color: #ffffff;
+            }
+            QPushButton {
+                background-color: #e0e0e0;
+                color: #000000;
+                border: 1px solid #cccccc;
+                border-radius: 4px;
+                padding: 6px 12px;
+            }
+            QPushButton:hover {
+                background-color: #d0d0d0;
+                border: 1px solid #aaaaaa;
+            }
+            QPushButton:pressed {
+                background-color: #0078d4;
+                color: #ffffff;
+            }
+            QProgressBar {
+                border: 1px solid #cccccc;
+                border-radius: 3px;
+                background-color: #e0e0e0;
+                text-align: center;
+                color: #000000;
+            }
+            QProgressBar::chunk {
+                background-color: #0078d4;
+                border-radius: 2px;
+            }
+            QMenu {
+                background-color: #ffffff;
+                color: #000000;
+                border: 1px solid #cccccc;
+            }
+            QMenu::item:selected {
+                background-color: #0078d4;
+                color: #ffffff;
+            }
+            QScrollBar:vertical {
+                background-color: #f0f0f0;
+                width: 12px;
+                border: none;
+            }
+            QScrollBar::handle:vertical {
+                background-color: #cccccc;
+                border-radius: 4px;
+                min-height: 20px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background-color: #aaaaaa;
+            }
+            QScrollBar:horizontal {
+                background-color: #f0f0f0;
+                height: 12px;
+                border: none;
+            }
+            QScrollBar::handle:horizontal {
+                background-color: #cccccc;
+                border-radius: 4px;
+                min-width: 20px;
+            }
+        """)
+        
+        #Update tombol Clear History agar tetap merah
+        self.clear_history_button.setStyleSheet(
+            "QPushButton { background-color: #ff4444; color: white; font-weight: bold; border-radius: 4px; }"
+            "QPushButton:hover { background-color: #ff6666; }"
+        )
     
     def apply_filters(self):
         ip_filter = self.filter_ip_input.text().strip()
@@ -810,7 +1012,7 @@ class MainWindow(QMainWindow):
         item = self.table.itemAt(position)
         
         #Biar Select All selalu ada
-        select_all_action = menu.addAction("✅ Select All (Ctrl+A)")
+        select_all_action = menu.addAction("Select All (Ctrl+A)")
         select_all_action.triggered.connect(lambda: self.table.selectAll())
         
         menu.addSeparator()
@@ -818,10 +1020,10 @@ class MainWindow(QMainWindow):
         if selected_rows:
             #Aksi untuk multiple selection
             if len(selected_rows) > 1:
-                add_all_action = menu.addAction(f"➕ Add All ({len(selected_rows)}) to Ping Monitor")
+                add_all_action = menu.addAction(f"Add All ({len(selected_rows)}) to Ping Monitor")
                 add_all_action.triggered.connect(self.add_selected_to_monitor)
                 
-                copy_all_action = menu.addAction(f"📋 Copy All ({len(selected_rows)}) IP Addresses")
+                copy_all_action = menu.addAction(f"Copy All ({len(selected_rows)}) IP Addresses")
                 copy_all_action.triggered.connect(self.copy_selected_scanner_ips)
             elif item:
                 #Aksi untuk single selection
@@ -832,13 +1034,13 @@ class MainWindow(QMainWindow):
                     ip_address = ip_item.text()
                     
                     #Buat nambahin ke monitor
-                    add_action = menu.addAction("➕ Add to Ping Monitor")
+                    add_action = menu.addAction("Add to Ping Monitor")
                     add_action.triggered.connect(lambda: self.add_ip_to_monitor(ip_address))
                     
                     menu.addSeparator()
                 
                 #Buat Nyalin ke clipboard
-                copy_action = menu.addAction("📋 Copy")
+                copy_action = menu.addAction("Copy")
                 copy_action.triggered.connect(lambda: self.copy_cell_to_clipboard(item.text()))
         
         menu.exec(self.table.viewport().mapToGlobal(position))
@@ -852,7 +1054,7 @@ class MainWindow(QMainWindow):
         item = self.monitor_table.itemAt(position)
         
         #Biar Select All selalu ada
-        select_all_action = menu.addAction("✅ Select All (Ctrl+A)")
+        select_all_action = menu.addAction("Select All (Ctrl+A)")
         select_all_action.triggered.connect(lambda: self.monitor_table.selectAll())
         
         menu.addSeparator()
@@ -860,14 +1062,14 @@ class MainWindow(QMainWindow):
         if selected_rows:
             #Aksi untuk multiple selection
             if len(selected_rows) > 1:
-                remove_all_action = menu.addAction(f"🗑️ Remove All ({len(selected_rows)}) from Monitor")
+                remove_all_action = menu.addAction(f"Remove All ({len(selected_rows)}) from Monitor")
                 remove_all_action.triggered.connect(self.remove_from_monitor)
                 
-                copy_all_action = menu.addAction(f"📋 Copy All ({len(selected_rows)}) IP Addresses")
+                copy_all_action = menu.addAction(f"Copy All ({len(selected_rows)}) IP Addresses")
                 copy_all_action.triggered.connect(self.copy_selected_monitor_ips)
             elif item:
                 #Aksi untuk single selection - Nyalin
-                copy_action = menu.addAction("📋 Copy")
+                copy_action = menu.addAction("Copy")
                 copy_action.triggered.connect(lambda: self.copy_cell_to_clipboard(item.text()))
         
         menu.exec(self.monitor_table.viewport().mapToGlobal(position))
@@ -879,7 +1081,7 @@ class MainWindow(QMainWindow):
         item = self.log_table.itemAt(position)
         if item:
             #Aksi untuk Nyalin
-            copy_action = menu.addAction("📋 Copy")
+            copy_action = menu.addAction("Copy")
             copy_action.triggered.connect(lambda: self.copy_cell_to_clipboard(item.text()))
         
         menu.exec(self.log_table.viewport().mapToGlobal(position))
@@ -938,7 +1140,7 @@ class MainWindow(QMainWindow):
         #Nampilin pesan sukses
         if hasattr(self, 'status_label'):
             original_text = self.status_label.text()
-            self.status_label.setText(f"✓ Copied: {text}")
+            self.status_label.setText(f"Copied: {text}")
             QTimer.singleShot(2000, lambda: self.status_label.setText(original_text))
     #Fungsi buat nambahin semua IP yang dipilih di scanner ke monitor
     def add_selected_to_monitor(self):
@@ -1012,7 +1214,7 @@ class MainWindow(QMainWindow):
             clipboard = QApplication.clipboard()
             clipboard.setText(clipboard_text)
             
-            self.status_label.setText(f"✓ Copied {len(ip_list)} IP address(es) to clipboard")
+            self.status_label.setText(f"Copied {len(ip_list)} IP address(es) to clipboard")
             QTimer.singleShot(2000, lambda: self.status_label.setText("Ready"))
     #Fungsi buat nyalin semua IP yang dipilih di monitor ke clipboard
     def copy_selected_monitor_ips(self):
@@ -1034,7 +1236,7 @@ class MainWindow(QMainWindow):
             clipboard = QApplication.clipboard()
             clipboard.setText(clipboard_text)
             
-            self.monitor_status_label.setText(f"✓ Copied {len(ip_list)} IP address(es) to clipboard")
+            self.monitor_status_label.setText(f"Copied {len(ip_list)} IP address(es) to clipboard")
             QTimer.singleShot(2000, self._restore_monitor_status)
     #Buat nge-restore status label monitor
     def _restore_monitor_status(self):
